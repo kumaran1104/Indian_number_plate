@@ -10,18 +10,18 @@ def preprocess(img):
 	gray = cv2.cvtColor(imgBlurred, cv2.COLOR_BGR2GRAY)
 
 	sobelx = cv2.Sobel(gray,cv2.CV_8U,1,0,ksize=3)
-	#cv2.imshow("Sobel",sobelx)
-	#cv2.waitKey(0)
+	cv2.imshow("Sobel",sobelx)
+	cv2.waitKey(0)
 	ret2,threshold_img = cv2.threshold(sobelx,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-	#cv2.imshow("Threshold",threshold_img)
-	#cv2.waitKey(0)
+	cv2.imshow("Threshold",threshold_img)
+	cv2.waitKey(0)
 	return threshold_img
 
 def cleanPlate(plate):
 	print ("CLEANING PLATE. . .")
 	gray = cv2.cvtColor(plate, cv2.COLOR_BGR2GRAY)
-	#kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
-	#thresh= cv2.dilate(gray, kernel, iterations=1)
+	kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+	thresh= cv2.dilate(gray, kernel, iterations=1)
 
 	_, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
 	im1,contours,hierarchy = cv2.findContours(thresh.copy(),cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -38,7 +38,7 @@ def cleanPlate(plate):
 			return plate,None
 
 		cleaned_final = thresh[y:y+h, x:x+w]
-		#cv2.imshow("Function Test",cleaned_final)
+		cv2.imshow("Function Test",cleaned_final)
 		return cleaned_final,[x,y,w,h]
 
 	else:
@@ -102,7 +102,7 @@ def validateRotationAndRatio(rect):
 
 
 def cleanAndRead(img,contours):
-	#count=0
+	count=0
 	for i,cnt in enumerate(contours):
 		min_rect = cv2.minAreaRect(cnt)
 
@@ -113,7 +113,7 @@ def cleanAndRead(img,contours):
 
 
 			if(isMaxWhite(plate_img)):
-				#count+=1
+				count+=1
 				clean_plate, rect = cleanPlate(plate_img)
 
 				if rect:
@@ -128,24 +128,24 @@ def cleanAndRead(img,contours):
 					cv2.imshow("Detected Plate",img)
 					cv2.waitKey(0)
 
-	#print "No. of final cont : " , count
+	print ("No. of final cont : " , count)
 
 
 
 if __name__ == '__main__':
 	print( "DETECTING PLATE . . .")
 
-	#img = cv2.imread("testData/Final.JPG")
+	img = cv2.imread("testData/Final.JPG")
 	img = cv2.imread("car.jpg")
 
 	threshold_img = preprocess(img)
 	contours= extract_contours(threshold_img)
 
-	#if len(contours)!=0:
-		#print len(contours) #Test
-		# cv2.drawContours(img, contours, -1, (0,255,0), 1)
-		# cv2.imshow("Contours",img)
-		# cv2.waitKey(0)
+	if len(contours)!=0:
+		print (len(contours)) #Test
+		cv2.drawContours(img, contours, -1, (0,255,0), 1)
+		cv2.imshow("contors",img)
+		cv2.waitKey(0)
 
 
 	cleanAndRead(img,contours)
